@@ -1,0 +1,77 @@
+---
+title: "Lab 8"
+author: "Your name here"
+date: "October 27, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Using your own dataset (which may include more than one table) carry out the following data cleaning steps. Knit together the PDF document and commit both the Lab 8 RMD file and the PDF document to Git. Push the changes to GitHub so both documents are visible in your public GitHub repository. 
+
+**Before you begin: as many of you have large datasets, you're going to want to select only the variables you're interested in utilizing for this project (ideally no more than twenty columns but perhaps much smaller) so you don't have R Studio's memory working on the entire dataset. The example code provided below can be modified to allow you to subset your data to only the variables you wish to use. First, read in your complete dataset and save it as** `data`. **Then, add the names of the variables you wish to use for your poster project to the** `select` **function, separated by commas. Run the two lines of code to save this new, smaller version of your data to** `data_subset`. **Use this smaller dataset to complete the rest of the lab**
+
+```{r, eval = FALSE}
+# Read in your data with the appropriate function
+data <- 
+  
+data_subset <- data %>%
+  select(var1, var2, var3) # replace with variable's you wish to add
+```
+
+
+1. To get a feel for its structure, look at the class, dimensions, column names, structure, and basic summary statistics of your data.
+
+
+
+2. Preview the first and last 15 rows of your data. Is you dataset tidy? If not, what principles of tidy data does it seem to be violating?
+
+
+
+3. Create a histogram for at least two variables you plan to focus on for your study. Describe what these plots show you about these variables. 
+
+
+
+4. Create at least one bivariate plot showing the relationship between two variables of interest. What does/do the(se) plot(s) tell you about the association between these two variables?
+
+
+
+5. Load the `tidyr` package. Do all of your columns correspond to variables? Do any columns represent multiple variables? If your answer is yes to either question, carry out the appropriate `tidyr` function (`gather()` or `spread()` respectively) to tidy your data. 
+
+
+
+6. Do any columns need to be separated into two or more? Do any columns need to be combined into one? If so, carry out the appropriate the appropriate `tidyr` function (`separate()` or `unite()` respectively) to tidy your data.  
+
+
+
+**At this stage each row in your data should represent one observation, each column should be a variable, and each table should be observational unit.** 
+
+7. What is the class of each of the variables in your analysis? Are these classes appropriate for the type of measurement they purport to capture? Explain your reasoning. 
+
+
+
+8. Do any of your variables need to be coerced into a different data type? If so, carry out the appropriate coercion methods below. (This includes transformation of any date objects using the `lubridate` package)
+
+
+
+9. Are there any strings you need to manipulate for your analysis? If so, use the appropriate function from the [`stringr`](https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html) package. 
+
+
+
+10. Do you have any missing values in your dataset? How many and how are they coded? **Be sure to look out for specific codebook values for missing values (i.e. `-1` for `NA`) as well as empty strings or other software-specific values for `NA`.** Don't worry about removing NAs yet - we'll tackle this question later once discern whether they're random or systematically distributed. 
+
+
+
+11. Are there any special values in your dataset? If so, what are they and how do you think they got there? *The presence of special values is less likely if you haven't performed any data manipulation yet so you should remember to return to this step each time you carry out a mathematical transformation of any values in your dataset.*
+
+
+
+12. Create a boxplot of your data (you can create an individual boxplot for each variable if there are too many variables in your dataset to meaningfully visualize them all in one plot). Are there any outliers? If so, what are they and to which variable do they correspond? Do any of these outliers seem like obvious errors? If so, why? 
+
+
+
+
+13. For any outliers and/or obvious errors, what do you think is the best way to handle them (i.e. remove them entirely, run analyses including and excluding them and compare the results, manually change them to an appropriate measure of center, or something else?). 
+
+
+
