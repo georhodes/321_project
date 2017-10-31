@@ -1,23 +1,21 @@
 
 
 # Install and load appropriate libraries
-install.packages("dplyr")
+#install.packages("dplyr")
 library("dplyr")
-install.packages("readr")
+#install.packages("readr")
 library("readr")
-install.packages("haven")
+#install.packages("haven")
 library("haven")
 library("tibble")
 
 
 #load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
 load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
-nsduh2015 <- PUF2015_102016
+names(PUF2015_102016) <- tolower(names(PUF2015_102016))
 
-#subset the data
-  subset_nsduh2015 <- nsduh2015 %>%
+subset_nsduh2015 <- PUF2015_102016 %>%
   select(txevrrcvd, alclottm, sexage, newrace2, sexrace, eduhighcat, ireduhighst2, al30est, alcus30d, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2, alcwd2sx,alcemopb) 
-
 # Who spent time in drug treatment ever? (TX01)		TXEVRRCVD	1=yes
 #recieved_treatment <- nsduh2015 %>%
  # select(Variables/columns you want to view) %>%
