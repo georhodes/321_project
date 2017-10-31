@@ -16,11 +16,16 @@ names(PUF2015_102016) <- tolower(names(PUF2015_102016))
 
 subset_nsduh2015 <- PUF2015_102016 %>%
   select(txevrrcvd, alclottm, sexage, newrace2, sexrace, eduhighcat, ireduhighst2, al30est, alcus30d, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2, alcwd2sx,alcemopb) 
+
+
 # Who spent time in drug treatment ever? (TX01)		TXEVRRCVD	1=yes
 #recieved_treatment <- nsduh2015 %>%
  # select(Variables/columns you want to view) %>%
   #filter(txevrrcvd == 1)
-
+#recovered_respondants set to those that have recieved treatment AND not drank in last 12 months.
+recovered_respondants <- subset_nsduh2015 %>%
+  filter(txevrrcvd == 1 & alclottm == 93)
+  # 925 observations. 
 
 # Find out who spent no time getting or drinking alcohol in past 12 months
 # (DRALC01) ALCLOTTM 
