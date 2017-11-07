@@ -16,12 +16,11 @@ names(PUF2015_102016) <- tolower(names(PUF2015_102016))
 
 #subset to relevant variables. 
 subset_nsduh2015 <- PUF2015_102016 %>%
-  select(txevrrcvd, alclottm, catag6, sexage, newrace2, irmaritstat, eduhighcat,
+  select(questid2, filedate, txevrrcvd, alclottm, catag6, sexage, newrace2, irmaritstat, eduhighcat,
          al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2) 
 #rename columns
-colnames(subset_nsduh2015) <- c("treatment", "alcohol", "age", "sexage", "race", "marital", "edu", 
+colnames(subset_nsduh2015) <- c("ident", "date", "treatment", "alcohol", "age", "sexage", "race", "marital", "edu", 
                                 "drink30", "binge30", "income", "famincome", "poverty", "countytype")
-
 
 # Who spent time in drug treatment ever? (TX01)		TXEVRRCVD	1=yes
 #recieved_treatment <- nsduh2015 %>%
@@ -41,6 +40,19 @@ recovered_respondants <- subset_nsduh2015 %>%
   #spent time in treatment ever AND hasn't drank in last 12 months
   #This would be who is sober today. 
  # sober_after_treatment <- recieved_treatment AND sober12months
+
+
+#Creating groups of variables
+alc_variables <- recovered_respondants %>%
+  select(4, 10, 11)
+alc_variables[1:10,]
+
+income_variables <- recovered_respondants %>%
+  select(12:13)
+
+demog_variables <- recovered_respondants %>%
+  select(5:8, 15)
+
 
 
 
