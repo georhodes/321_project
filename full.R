@@ -14,6 +14,7 @@ library("tibble")
 load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
 names(PUF2015_102016) <- tolower(names(PUF2015_102016))
 
+#subset to relevant variables. 
 subset_nsduh2015 <- PUF2015_102016 %>%
   select(txevrrcvd, alclottm, sexage, newrace2, sexrace, eduhighcat, ireduhighst2, al30est, alcus30d, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2, alcwd2sx,alcemopb) 
 
