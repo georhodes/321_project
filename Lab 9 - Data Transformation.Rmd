@@ -227,9 +227,11 @@ As with `arrange()`, `rank()` ranks values from the smallest to the largest.
 Still struggling with mutate. 
 
 arranged_mutated_meaningless <- recovered_respondants %>%
-  rank(c(1:10)) %>% mutate(
+  mutate(
     edu2 = eduhighcat * 2,
-    fam2 = irfamin3 *2)
+    fam2 = irfamin3 *2) %>%
+     rank(edu2)
+    
 
   
   b. What do the results tell you about different groups in you data?
