@@ -1,0 +1,160 @@
+---
+title: "NSDUH2015_codebook"
+author: "George Rhodes"
+date: "November 12, 2017"
+output: pdf_document
+---
+
+1) Study Design
+In the first section of your codebook, titled **Study Design**, describe the study design including the purpose of the study, the sponsor of the study, the name of the data collection organization, and the specific methodology used including the mode of data collection, the method of participant recruitment (if any), and the length of the field period. (12 points)
+
+2) Sampling
+The second section, **Sampling** should clearly document all available sampling information. This includes a description of the population, the methods used to draw the sample, and any special conditions associated with the sample (i.e groups that were oversampled). (12 points)
+
+3) Variable Index
+
+```{r}
+# Setting working directory 
+setwd("/Users/george/Documents/School/UW/SOC321/honors_thesis/321_project")
+
+# Loading libraries
+library(memisc)
+library(dplyr)
+
+#load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+
+#change all variable names to all lowercase for ease of calling.
+names(PUF2015_102016) <- tolower(names(PUF2015_102016))
+
+#subset to relevant variables. 
+subset_nsduh2015 <- PUF2015_102016 %>%
+  select(questid2, filedate, txevrrcvd, alclottm, catag6, irsex, newrace2, irmaritstat, eduhighcat,
+         al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2) 
+#rename columns
+colnames(subset_nsduh2015) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                                "drink30", "binge30", "income", "famincome", "poverty", "countytype")
+
+#recovered_respondants set to those that have recieved treatment AND not drank in last 12 months.
+recovered_respondants <- subset_nsduh2015 %>%
+  filter(treatment == 1 & alcohol == 93)
+  # 925 observations. 
+
+#selects ident, treatment, alcohol, edu, income, famincome, poverty, and county type. 
+project_variables <- recovered_respondants %>%
+  dplyr::select(ident, treatment, alcohol, edu, income, famincome, poverty, countytype)
+```
+
+```{r}
+#I have some questions about translating recoded variables. Since some are not questions, but inferred or combined from other questions, I'm not sure how to document them. I have just put what the Dataset's codebook has. 
+
+# Create data.set object from "data" object (tbl)
+data_set <- as.data.set(project_variables)
+
+# Look at new data.set object
+data_set
+
+# Creating variable index for data_set
+data_set <- within(data_set,{
+  # Description of the variables
+  description(ident) <- "Unique person identification within given study year"
+  description(treatment) <- "Ever recieved treatment"
+  description(alcohol) <- "Used alcohol in last 12 months"
+  description(edu) <- "Education Level"
+  description(income) <- "Income level"
+  description(famincome) <- "Family income"
+  description(poverty) <- "Family income and local poverty level"
+  description(countytype) <- "urban/rural"
+  
+  # Wording of survey item/interview questions (if applicable)
+  wording(treatment) <- "Have you ever received treatment or counseling for your use of alcohol or any drug, not counting cigarettes?"
+  wording(alcohol) <- "During the past 12 months, was there a month or more when you spent a lot of your time getting or drinking alcohol?"
+  wording(edu) <- "Re-coded education categories."
+  wording(income) <- "Respondant total income (finer categories) - IMP REV."
+  wording(famincome) <- "Recode - IMP Revised - Total family income."
+  wording(poverty) <- "Recode - Poverty level (% of US Census poverty threshold)."
+  wording(countytype) <- "County Metro/nonmetro status (3-level)"
+
+  # type of measurement
+  measurement(ident) <- "nominal"
+  measurement(treatment) <- "nominal"
+  measurement(alcohol) <- "nominal"
+  measurement(edu) <- "ordinal"
+  measurement(income) <- "ordinal"
+  measurement(famincome) <- "ordinal"
+  measurement(poverty) <- "ordinal"
+  measurement(countytype) <- "nominal"
+  
+  # labels associated with underlying numeric
+  labels(treatment) <- c(
+    "Yes"                                                 =  1,
+    "No"                                                  =  2,
+    "BAD DATA Logically assigned"                         =  85,
+    "Never used alcohol or drugs"                         =  91,
+    "Don't know"                                          =  94,
+    "Refused"                                             =  97,
+    "blank (no answer)"                                   =  98)
+  labels(alcohol) <- c(
+    "Yes"                                                        =  1,
+    "No"                                                         =  2,
+    "Did not use alcohol past 12 months or used <6 days log asn" =  83,
+    "BAD DATA Logically assigned"                                =  85,
+    "Never used alcohol"                                         =  91,
+    "Did not use alcohol past 12 months or used <6 days"         =  93,
+    "Don't know"                                                 =  94,
+    "Refused"                                                    =  97,
+    "blank (no answer)"                                          =  98)
+  labels(edu) <- c(
+    "Less than high school"                         =  1,
+    "High school grad"                              =  2,
+    "Some college/associates degree"                =  3,
+    "College graduate"                              =  4,
+    "12 to 17 year old"                             =  5)
+  labels(income) <- c(
+    "Less than $10,000 (including loss)"            =  1,
+    "$10,000 - $19,999"                             =  2,
+    "$20,000 - $29,999"                             =  3,
+    "$30,000 - $39,999"                             =  4,
+    "$40,000 - $49,999"                             =  5,
+    "$50,000 - 74,999"                              =  6,
+    "$75,000 or more"                               =  7)
+  labels(famincome) <- c(
+    "Less than $10,000 (including loss)"            =  1,
+    "$10,000 - $19,999"                             =  2,
+    "$20,000 - $29,999"                             =  3,
+    "$30,000 - $39,999"                             =  4,
+    "$40,000 - $49,999"                             =  5,
+    "$50,000 - 74,999"                              =  6,
+    "$75,000 or more"                               =  7)
+  labels(poverty) <- c(
+    "Living in poverty"                             =  1,
+    "Income up to 2x federal poverty threashold"    =  2,
+    "Income more than 2x federal poverty threshold" =  3)
+  labels(countytype) <- c(
+    "Large Metro"                                   =  1,
+    "Small Metro"                                   =  2,
+    "Nonmetro"                                      =  3)
+  
+  # any annotation/notes you wish to add
+  annotation(poverty)["Note"] <- "The poverty threshold was determined for each individual based on their age, family size, number of children in the household, and total family income. This excludes persons aged 18-22 living in dorms, which was coded with a period."
+  annotation(countytype)["Note"] <- "The definitions here are confusing and may not perfectly fit an urban/rural analysis."
+  annotation(edu)["Note"] <- "Respondants are 18 years old and older unless they answered 5, in which case they are 12-17 years old."
+  
+  # How are missing values coded? NEED!
+  missing.values(treatment) <- c(85, 94, 97, 98)
+  missing.values(alcohol) <- c(85, 94, 97, 98)
+  missing.values(edu) <- c()
+  missing.values(income) <- c()
+  missing.values(famincome) <- c()
+  missing.values(poverty) <- c()
+  missing.values(countytype) <- c()
+  
+})
+```
+
+\pagebreak
+
+```{r}
+codebook(data_set)
+```
+
