@@ -53,6 +53,10 @@ income_variables <- recovered_respondants %>%
 demog_variables <- recovered_respondants %>%
   select(1,5:8, 15)
 
+#selects ident, treatment, alcohol, edu, income, famincome, poverty, and county type. 
+#Something is masking dplyr's select function, so I need to call it specifically.
+project_variables <- recovered_respondants %>%
+  dplyr::select(1,3:4,9, 12:15) 
 
 
 
