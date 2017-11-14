@@ -5,15 +5,31 @@ date: "November 12, 2017"
 output: pdf_document
 ---
 
-1) Study Design
-In the first section of your codebook, titled **Study Design**, describe the study design including the purpose of the study, the sponsor of the study, the name of the data collection organization, and the specific methodology used including the mode of data collection, the method of participant recruitment (if any), and the length of the field period. (12 points)
+**Study Design** 
 
-2) Sampling
-The second section, **Sampling** should clearly document all available sampling information. This includes a description of the population, the methods used to draw the sample, and any special conditions associated with the sample (i.e groups that were oversampled). (12 points)
+This codebook refers to data from the 2015 National Survey on Drug Use and Health (NSDUH), an annual, cross-sectional (not longitudinal), survay of the illicit drug, alcohol, and tobacco use among members of the U.S. civilaian, noninstitutionalized population 12 years old or older. 
 
-3) Variable Index
+This study was sponsored by the Center for Behavioral Health Statistics and Quality (CBHSQ) within the Substance Abuse and Mental Health Services Administration (SAMHSA) and conducted by RTI International of North Carolina.
 
-```{r}
+RTI administered this survey with CAI and ACASI methods. During sensitive portions, ACASI methods were employed for privacy, confidentiality, and accuracy. Otherwise the interview was conducted using CAPI/ CAI methods. A $30 incentive for completing the interview was offered.  
+  
+ **Sampling**
+
+"The target sample size of 67,507 allows SAMHSA to continue reporting adequately precise demographic subgroup estimates at the national level without needing to oversample specifically targetted deomgraphics." The sample was selected using a multistage, deeply stratified sample design made up of 5 stages starting at the state level. 
+  
+The sample design allowed for sample size of states to be individually proportioned for significant results from each state. This includes 4,560 interviews in California; 3300 interviews in Florida, New York, and Texas; 2,400 interviews in Illinois, Michigan, Ohio, and Pennsylvania; 1,500 interviews in Georgia, New Jersey, North Carolina, and Verginia; 967 interviews in Hawaii; and 960 interviews in the remaining 37 states and the District of Columbia.  
+   
+Systematic Sampling selected the sample addresses needed for each area segment, from which Field Interviewers visited and input the number of eligible respondents at that address. Then a computer program "selected the sample of individuals to be interviewed using parameters specifed for that area segment and a random number specified for that address."
+  
+The only oversampling was done so to better represent the age groups 12-17, and 18-25. The final sample allocation by age is as follows: 25% 12-17, 25% 18-25, 15% 26-34, 20% 35-49, and 15% for 50 and older. 
+
+A total final sample of 68,073 CAI interviews was obtained for the 2015 survey. Strategies for ensuring high rates of participation resulted in a weighted screening response rate of 79.69 percent and a weighted interview response rate for the CAI of 69.66 percent.
+
+\pagebreak
+
+**Variable Index**
+
+```{r, echo = FALSE, message = FALSE}
 # Setting working directory 
 setwd("/Users/george/Documents/School/UW/SOC321/honors_thesis/321_project")
 
@@ -45,7 +61,7 @@ project_variables <- recovered_respondants %>%
   dplyr::select(ident, treatment, alcohol, edu, income, famincome, poverty, countytype)
 ```
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 #I have some questions about translating recoded variables. Since some are not questions, but inferred or combined from other questions, I'm not sure how to document them. I have just put what the Dataset's codebook has. 
 
 # Create data.set object from "data" object (tbl)
@@ -154,7 +170,7 @@ data_set <- within(data_set,{
 
 \pagebreak
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 codebook(data_set)
 ```
 
