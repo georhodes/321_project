@@ -58,5 +58,72 @@ demog_variables <- recovered_respondants %>%
 project_variables <- recovered_respondants %>%
   dplyr::select(1,3:4,9, 12:15) 
 
+#adds column 16 of recovered/unrecovered
+data_recovered <- subset_nsduh2015 %>% 
+  mutate( if_else((treatment == 1 & alcohol == 93), 
+                  "recovered",
+                  "unrecovered")
+         )
+#Adds column 17 of treated/untreated.
+data <- data_recovered %>% 
+  mutate( if_else((treatment == 1), 
+                  "treated",
+                  "untreated")
+        )
 
+#adds a column 16 of treated_sober recovered/niether
+data_treated_sober <- subset_nsduh2015 %>% 
+  mutate( if_else((treatment == 1 & alcohol == (93|83)), 
+                  "recovered",
+                  "neither")
+  )
 
+#rename new column
+colnames(data_treated_sober) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                                  "drink30", "binge30", "income", "famincome", "poverty", "countytype",
+                                  "treated_sober")
+
+#adds a column 16 of treated_drinking: drinking/neither
+data_treated_drinking <- data_treated_sober %>% 
+  mutate( if_else((treatment == 1 & alcohol != (83|93) ), 
+                  "drinking",
+                  "neither")
+  )
+#rename new column
+colnames(data_treated_drinking) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                                     "drink30", "binge30", "income", "famincome", "poverty", "countytype",
+                                     "treated_sober", "treated_drinking")
+
+#adds a column 17 treated: treated/untreated. data becomes working dataset. 
+data_treated <- data_treated_drinking %>% 
+  mutate( if_else((treatment == 1), 
+                  "treated",
+                  "untreated")
+  )
+
+#adds name to new column. 
+colnames(data_treated) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                            "drink30", "binge30", "income", "famincome", "poverty", "countytype",
+                            "treated_sober", "treated_drinking", "treated")
+
+data_count_recovered_n <- data_treated %>%
+  mutate(recovered_n = sum(treated_sober == "recovered"))
+
+data_count_not_recovered_n <- data_count_recovered_n %>%
+  mutate(not_recovered_n = sum(treated_sober == "neither"))
+
+data_count_treated_drinking_n <- data_count_not_recovered_n %>%
+  mutate(treated_drinking_n = sum(treated_drinking == "drinking"))
+
+data_count_not_treated_drinking_n <- data_count_treated_drinking_n %>%
+  mutate(not_treated_drinking_n = sum(treated_drinking == "neither"))
+#create sum of recovered. variable is the same for every row. 
+#group by income
+# create proportion recovered. # of peolpe in income/ total. 
+#Plot that variable .
+#rename last two columns "recovered" and "treated" to make usable
+
+                 
+
+#mutate using if (define recovered) = "recovered"
+# else = "unrecovered"
