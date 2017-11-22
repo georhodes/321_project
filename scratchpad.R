@@ -4,23 +4,23 @@
 #How do I avoid the giant data table and only import relevent data? 
 
 # Who spent time in drug treatment ever? (TX01)		TXEVRRCVD	1=yes
-recieved_treatment <- nsduh2015 %>%
-  select(Variables/columns you want to view) %>%
-  filter(txevrrcvd == 1)
+#recieved_treatment <- nsduh2015 %>%
+ # select(VariablesOrColumnsYouWantToView) %>%
+  #filter(txevrrcvd == 1)
 
 
 # Find out who spent no time getting or drinking alcohol in past 12 months
 # (DRALC01) ALCLOTTM 
 #83= Did not use or used < 6 dys Log asn 117
 #93= Did not use past 12 mo or <6 dys 11935
-sober12months <-
+#sober12months <-
   
   #spent time in treatment ever AND hasn't drank in last 12 months
   #This would be who is sober today. 
-  sober_after_treatment <- recieved_treatment AND sober12months
+  #sober_after_treatment <- recieved_treatment AND sober12months
 
 #changing all names of dataset to lowercase
-names(nsduh2015) <- tolower(names(nsduh2015))
+#names(nsduh2015) <- tolower(names(nsduh2015))
 
 # too much info, but gives codebook... for everything. 
 #unclass(recovered_respondants)
@@ -49,3 +49,29 @@ arranged_mutated_meaningless <- recovered_respondants %>%
 
 #shows info about variables. 
 glimpse()
+#list levels of factor
+level(data$variable)
+# dimensions of an object
+dim(object)
+# class of an object (numeric, matrix, data frame, etc)
+class(object)
+# print mydata 
+mydata
+# print first 10 rows of mydata
+head(mydata, n=10)
+# print last 5 rows of mydata
+tail(mydata, n=5)
+# list the structure of mydata
+str(mydata)
+
+#Something is masking dplyr's select function, so I need to call it specifically.
+project_variables <- recovered_respondants %>%
+  dplyr::select(1,3:4,9, 12:15) 
+
+#mutate using if (define recovered) = "recovered"
+                  # else = "unrecovered"
+
+hist_income <- ggplot(data, aes(y = ((..count..)/sum(..count..)), x = income)) +
+  # default is stack, can do stat= identity or densisty
+  geom_histogram(x= treated_sober == recovered, fill = "red", alpha = 0.2) + 
+  geom_histogram(data = treated_sober == unrecovered, fill = "blue", alpha = 0.2) 
