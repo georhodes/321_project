@@ -75,3 +75,39 @@ hist_income <- ggplot(data, aes(y = ((..count..)/sum(..count..)), x = income)) +
   # default is stack, can do stat= identity or densisty
   geom_histogram(x= treated_sober == recovered, fill = "red", alpha = 0.2) + 
   geom_histogram(data = treated_sober == unrecovered, fill = "blue", alpha = 0.2) 
+
+
+#cutting out parts of the VIS lab
+#adds a column 16 of treated_sober recovered/niether
+data_treated_sober <- subset_nsduh2015 %>% 
+  mutate(treated_sober = if_else((treatment == 1 & alcohol == 93), 
+                                 "recovered",
+                                 "neither")
+  )
+
+#adds a column 16 of treated_drinking: drinking/neither
+data_treated_drinking <- data_treated_sober %>% 
+  mutate( treated_drinking = if_else((treatment == 1 & alcohol != (93) ), 
+                                     "treated_drinking",
+                                     "treated_drinking_FALSE")
+  )
+
+#adds a column 17 treated: treated/untreated. data becomes working dataset. 
+data_treated <- data_treated_drinking %>% 
+  mutate( treated = if_else((treatment == 1), 
+                            "treated",
+                            "untreated")
+#Treated and Drinking True
+data_count_treated_drinking_n <- data_count_not_recovered_n %>%
+  mutate(treated_drinking_n = sum(treated_drinking == "treated_drinking"))
+
+#Treated and Drinking False
+data_count_not_treated_drinking_n <- data_count_treated_drinking_n %>%
+  mutate(not_treated_drinking_n = sum(treated_drinking == "treated_drinking_FALSE"))
+
+#Changing labels on graphs
+p7 <- ggplot(airquality, aes(x = Ozone)) +
+  geom_histogram(aes(y = ..count..), binwidth = 5) +
+  scale_x_continuous(name = "Mean ozone in\nparts per billion") +
+  scale_y_continuous(name = "Count")
+p7

@@ -127,3 +127,57 @@ data_count_not_treated_drinking_n <- data_count_treated_drinking_n %>%
 
 #mutate using if (define recovered) = "recovered"
 # else = "unrecovered"
+
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(ggthemes)
+
+
+#load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+
+#change all variable names to all lowercase for ease of calling.
+names(PUF2015_102016) <- tolower(names(PUF2015_102016))
+
+#subset to relevant variables. 
+subset_nsduh2015 <- PUF2015_102016 %>%
+  select(questid2, filedate, txevrrcvd, alclottm, catag6, irsex, newrace2, irmaritstat, eduhighcat,
+         al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2) 
+#rename columns
+colnames(subset_nsduh2015) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                                "drink30", "binge30", "income", "famincome", "poverty", "countytype")
+
+#adds column 16 (treated_sober) with recovered, treated_drinking, and untreated 
+data_treated_sober <- subset_nsduh2015 %>%
+  mutate(treated_sober = ifelse((treatment == 1 & alcohol == 93), "recovered",
+                                ifelse(treatment ==1 & alcohol != 93, "treated_drinking",
+                                       "untreated")))
+
+#adding columns that count
+# Treated and Sober "recovered"
+data_count_recovered_n <- data_treated_sober %>%
+  mutate(recovered_n = sum(treated_sober == "recovered"))
+
+#Treated and Sober "treated_drinking""
+data_count_not_recovered_n <- data_count_recovered_n %>%
+  mutate(treated_drinking_n = sum(treated_sober == "treated_drinking"))
+
+count_untreated_n <- data_count_not_recovered_n %>%
+  mutate(untreated_n= sum(treated_sober == "untreated"))
+
+data_clean <- count_untreated_n
+
+#creates subet of only those "recovered"
+recovered_respondants <- data_clean %>%
+  filter(treatment == 1 & alcohol == 93)
+
+#creates subset of only those "treated drinking"
+treated_drinking_respondants <- data_clean %>%
+  filter(treated_sober == "treated_drinking")
+
+untreated_respondants <- data_clean %>%
+  filter(treated_sober == "untreated")
+
+project_variables <- recovered_respondants %>%
+  dplyr::select(ident, treatment, alcohol, edu, income, famincome, poverty, countytype)
