@@ -63,19 +63,19 @@ untreated_respondants <- data_clean %>%
 
 #following attempt to rename the values of data_clean$income failed to produce histogram
 #x needs to be continuous, not discrete
-#data_clean$income[data_clean$income == 1] <- "0-9,999"
-#data_clean$income[data_clean$income == 2] <- "10,000-19,999"
-#data_clean$income[data_clean$income == 3] <- "20,000-29,999"
-#data_clean$income[data_clean$income == 4] <- "30,000-39,999"
-#data_clean$income[data_clean$income == 5] <- "40,000-49,999"
-#data_clean$income[data_clean$income == 6] <- "50,000-74,999"
-#data_clean$income[data_clean$income == 7] <- "75,000 +"
+data_clean$income[data_clean$income == 1] <- "0-9,999"
+data_clean$income[data_clean$income == 2] <- "10,000-19,999"
+data_clean$income[data_clean$income == 3] <- "20,000-29,999"
+data_clean$income[data_clean$income == 4] <- "30,000-39,999"
+data_clean$income[data_clean$income == 5] <- "40,000-49,999"
+data_clean$income[data_clean$income == 6] <- "50,000-74,999"
+data_clean$income[data_clean$income == 7] <- "75,000 +"
 
-#More attempts to make this work. 
-#Also to make discrete so that density line doesn't dip down. 
-#oldvalues <- c("1", "2", "3", "4", "5", "6", "7")
-#newvalues <- factor(c("0-10", "10-20", "20-30", "30-40", "40-50", "50-75", "75"))
-#data_clean$income <- factor(data_clean$income)
+# More attempts to make this work.
+# Also to make discrete so that density line doesn't dip down.
+# oldvalues <- c("1", "2", "3", "4", "5", "6", "7")
+# newvalues <- factor(c("0-10", "10-20", "20-30", "30-40", "40-50", "50-75", "75"))
+# data_clean$income <- factor(data_clean$income)
 
 #selects ident, treatment, alcohol, edu, income, famincome, poverty, and county type. 
 project_variables <- recovered_respondants %>%
@@ -87,25 +87,30 @@ project_variables <- recovered_respondants %>%
 ```{r, echo = FALSE, message = FALSE}
 hist_income <- ggplot(data_clean, 
                       mapping = aes(x = income, color = treated_sober), stat = "count", breaks = seq(0, 7, by = 1)) +
-                   geom_histogram(aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
-                   geom_histogram(data = recovered_respondants, 
+                   geom_bar(aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = recovered_respondants, 
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
-                   geom_histogram(data = treated_drinking_respondants, 
+                   geom_bar(data = treated_drinking_respondants, 
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge",alpha = 0.5) +
                    scale_y_continuous(labels = percent) +
-                   labs(title = "Individual Income Distribution", x = "Annual income($)", y = "Percent of population in income bracket") +
-                   geom_density()+
-                   stat_bin(binwidth = 1)
+                   labs(title = "Individual Income Distribution", x = "Annual income($)", y = "Percent of population in income bracket")
+
+#Great. Just need to dodge. 
+# can merge data set. use .id to call individual. .id saves which table data came from. 
+  #one of last merges we covered in lecture. Use BIND. Row Bind. BOOM. bind_rows. 
+# .id = name of table. Then specify color. then position = "dodge"
+                  
                    
 
 hist_income
 
+# make color an attribute. Take out of ggplot. add fill = red for each geom_bar. 
 hist_famincome <- ggplot(data_clean, 
                       mapping = aes(x = famincome, color = treated_sober)) +
-                   geom_histogram(aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5)+
-                   geom_histogram(data = recovered_respondants, 
+                   geom_bar(aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = recovered_respondants, 
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
-                   geom_histogram(data = treated_drinking_respondants, 
+                   geom_bar(data = treated_drinking_respondants, 
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge",alpha = 0.5)+
                    scale_y_continuous(labels = percent) +
                    labs(title = "Family Income Distribution", x = "Annual income($)", y = "Percent of population in income bracket")
