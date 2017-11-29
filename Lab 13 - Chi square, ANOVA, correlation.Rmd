@@ -67,21 +67,7 @@ untreated_respondants <- data_clean %>%
 project_variables <- recovered_respondants %>%
   dplyr::select(ident, treatment, alcohol, edu, income, famincome, poverty, countytype)
 
-data_clean$income[data_clean$income == 1] <- "0-9,999"
-data_clean$income[data_clean$income == 2] <- "10,000-19,999"
-data_clean$income[data_clean$income == 3] <- "20,000-29,999"
-data_clean$income[data_clean$income == 4] <- "30,000-39,999"
-data_clean$income[data_clean$income == 5] <- "40,000-49,999"
-data_clean$income[data_clean$income == 6] <- "50,000-74,999"
-data_clean$income[data_clean$income == 7] <- "75,000 +"
 
-data_clean$famincome[data_clean$income == 1] <- "0-9,999"
-data_clean$famincome[data_clean$income == 2] <- "10,000-19,999"
-data_clean$famincome[data_clean$income == 3] <- "20,000-29,999"
-data_clean$famincome[data_clean$income == 4] <- "30,000-39,999"
-data_clean$famincome[data_clean$income == 5] <- "40,000-49,999"
-data_clean$famincome[data_clean$income == 6] <- "50,000-74,999"
-data_clean$famincome[data_clean$income == 7] <- "75,000 +"
 
 # Chi-sq test
 chitest <- chisq.test(data_clean$income, data_clean$treated_sober, correct=FALSE)
@@ -117,31 +103,66 @@ The income variable was only converted to the dollar value income level for reac
 **2. Select one continuous variable and one categorical variable from your dataset whose association you're interested in exploring.** *Again, note that you'll need to create a categorical version of your independent variable to make this work.*
 ```{r, echo = FALSE, message = FALSE}
 
-anova_income_edu <- aov( edu ~ income, data = data_clean)
+anova_income_edu <- aov(edu ~ income, data = data_clean)
 anova_income_edu
+summary(anova_income_edu)
 
 ```
   a. Describe any modifications made to your data for the ANOVA test and the composition of the variables used in the test (e.g., college rank is measured using a four-category variable with values indicating freshman, sophomore, junior, and senior class).
+  
+  I did not make any more changes, but I am treating income as continuous. 
 
   b. What are the degrees of freedom (both types) for this test and how are they calculated?
+  
+  there are 6 Income degrees of freedom, as there are 7 options, and 57139 residual degrees of freedom. 
 
   c. What is the obtained value of the test statistic?
 
+  1.23269
+  
   d. What do the resuts tell you about the association between these two variables? What does this mean for your theoretical arguments about these variables?
+
+The results are significant. With a P value of less than 2e-16, we reject the null hypothesis.  
 
 **3. Select two continuous variables from your dataset whos association you're interested in exploring.**
 ```{r, echo = FALSE, message = FALSE}
-
-
+#correlation tesst for continuous numeric data. x and y both continuous.
+corobject <- cor(data_clean$edu, data_clean$income)
+corobject
 ```
 
   a. What is the correlation between these two variables? 
 
+  -0.0752954. 
+  
   b. Create a scatterplot of the variables you selected. Does the correlation coefficient accurately represent the relationship between these two variables? Why or why not? 
 
+  There's so many observations in these limited catagories that it is imposible to tell. 
+```{r, echo = FALSE, message = FALSE}
+plot_income_edu <- ggplot(data_clean, 
+                      mapping = aes(x = edu, y = income, color = treated_sober), stat = "count", breaks = seq(0, 7, by = 1)) +
+                   geom_point()
+plot_income_edu
+
+```
   c. Create a correlation matrix of your data using the `ggcorr` function from the `GGally` package. Be sure to label each cell with the correlation coefficient. 
+  
+```{r, echo = FALSE, message = FALSE}
+install.packages("GGally")
+library("GGally")
+
+ggcorr(project_variables, label = TRUE, label_alpha = TRUE)
+
+
+```
 
   d. What does this visual representation of correlation coefficients tell you about your data? Are there any relationships (or lack thereof) that are surprising to you? Why or why not?
+  
+  This visualization makes sense. First of all, it's all catagorical. Treatment and alcohol are yes or now with 3-4 options for NA as well. The poverty variable is directly related to the family income variable. And education, income, family income, and poverty are connected and correlated to some degree. 
 
   e. What are the limitations of correlation coefficients? Can they ever be misleading? If so, in what ways? 
+  
+  Correlation coefficients are only a helpful as the equation models reality. If we are missing components that influence the relationship, the correlation coefficient will be lower. 
+  
+  
 
