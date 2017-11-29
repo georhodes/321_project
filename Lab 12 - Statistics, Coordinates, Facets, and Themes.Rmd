@@ -71,6 +71,14 @@ data_clean$income[data_clean$income == 5] <- "40,000-49,999"
 data_clean$income[data_clean$income == 6] <- "50,000-74,999"
 data_clean$income[data_clean$income == 7] <- "75,000 +"
 
+data_clean$famincome[data_clean$income == 1] <- "0-9,999"
+data_clean$famincome[data_clean$income == 2] <- "10,000-19,999"
+data_clean$famincome[data_clean$income == 3] <- "20,000-29,999"
+data_clean$famincome[data_clean$income == 4] <- "30,000-39,999"
+data_clean$famincome[data_clean$income == 5] <- "40,000-49,999"
+data_clean$famincome[data_clean$income == 6] <- "50,000-74,999"
+data_clean$famincome[data_clean$income == 7] <- "75,000 +"
+
 # More attempts to make this work.
 # Also to make discrete so that density line doesn't dip down.
 # oldvalues <- c("1", "2", "3", "4", "5", "6", "7")
