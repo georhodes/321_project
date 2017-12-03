@@ -1,0 +1,270 @@
+---
+title: "Data Visualization"
+author: "George Rhodes"
+date: "12/1/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+TO DO:
+
+Play with Themes: Economist, Solarized, 538 isn't working. 
+
+
+```{r, echo = FALSE, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(ggthemes)
+library(plyr)
+library(ggthemes)
+library(gmodels)  #modeling crosstables and mosaics
+
+
+
+#load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+
+#change all variable names to all lowercase for ease of calling.
+names(PUF2015_102016) <- tolower(names(PUF2015_102016))
+
+#subset to relevant variables. 
+subset_nsduh2015 <- PUF2015_102016 %>%
+  select(questid2, filedate, txevrrcvd, alclottm, catag6, irsex, newrace2, irmaritstat, eduhighcat,
+         al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2) 
+#rename columns
+colnames(subset_nsduh2015) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                                "drink30", "binge30", "income", "famincome", "poverty", "countytype")
+
+#adds column 16 (treated_sober) with recovered, treated_drinking, and untreated 
+data_treated_sober <- subset_nsduh2015 %>%
+  mutate(treated_sober = ifelse((treatment == 1 & alcohol == 93), "treated_sober",
+                                 ifelse(treatment ==1 & alcohol != 93, "treated_drinking",
+                                     "untreated")))
+#Filter those less than 18
+data_18over <- data_treated_sober %>%
+    filter(edu != 5)
+
+#adding columns that count
+# Treated and Sober "recovered"
+data_count_recovered_n <- data_18over %>%
+  mutate(recovered_n = sum(treated_sober == "treated_sober"))
+
+#Treated and Sober "treated_drinking""
+data_count_not_recovered_n <- data_count_recovered_n %>%
+  mutate(treated_drinking_n = sum(treated_sober == "treated_drinking"))
+
+count_untreated_n <- data_count_not_recovered_n %>%
+  mutate(untreated_n= sum(treated_sober == "untreated"))
+
+data_clean <- count_untreated_n 
+
+#Change x-labels. 
+data_clean$income <- mapvalues(data_clean$income, 
+                               c('1', '2', '3', '4', '5', '6', '7'),
+                               c("0-10", "10-20", "20-30", "30-40", "40-50","50-75", "75+"))
+
+data_clean$famincome <- mapvalues(data_clean$famincome, 
+                               c('1', '2', '3', '4', '5', '6', '7'),
+                               c("0-10", "10-20", "20-30", "30-40", "40-50","50-75", "75+"))
+
+data_clean$edu <- mapvalues(data_clean$edu,
+                            c('1','2','3','4','5'),
+                            c("< HS", "HS grad", "some college", "undergrad degree", "12-17 YO"))
+# data_clean$edu <- factor(data_clean$edu, levels = c("23-17 YO", "less than HS", "HS grad", "some college", "college grad"))
+#levels(data_clean$edu) <- 
+
+
+
+#remove ages 12-17.... NOT WORKING
+# data_clean <- count_untreated_n %>%
+#   filter(edu == 1|2|3|4)
+
+#creates subet of only those "recovered"
+recovered_respondents <- data_clean %>%
+  filter(treatment == 1 & alcohol == 93)
+
+#creates subset of only those "treated drinking"
+treated_drinking_respondents <- data_clean %>%
+  filter(treated_sober == "treated_drinking")
+
+#creates subset of "untreated"
+untreated_respondents <- data_clean %>%
+  filter(treated_sober == "untreated")
+
+
+#row bind these subsets
+# data_binded <- bind_rows(untreated_respondents, treated_drinking_respondents, recovered_respondents, .id = "treated_sober")
+                             
+# data_binded <- bind_rows("untreated" = untreated_respondents, "treated_drinking" = treated_drinking_respondents, "recovered" = recovered_respondents, .id = "groups")
+
+#following attempt to rename the values of data_clean$income failed to produce histogram
+#x needs to be continuous, not discrete
+# data_clean$income[data_clean$income == 1] <- "0-10"
+# data_clean$income[data_clean$income == 2] <- "10-20"
+# data_clean$income[data_clean$income == 3] <- "20-30"
+# data_clean$income[data_clean$income == 4] <- "30-40"
+# data_clean$income[data_clean$income == 5] <- "40-50"
+# data_clean$income[data_clean$income == 6] <- "50-75"
+# data_clean$income[data_clean$income == 7] <- "75+"
+# 
+# data_clean$famincome[data_clean$famincome == 1] <- "0-10"
+# data_clean$famincome[data_clean$famincome == 2] <- "10-20"
+# data_clean$famincome[data_clean$famincome == 3] <- "20-30"
+# data_clean$famincome[data_clean$famincome == 4] <- "30-40"
+# data_clean$famincome[data_clean$famincome == 5] <- "40-50"
+# data_clean$famincome[data_clean$famincome == 6] <- "50-75"
+# data_clean$famincome[data_clean$famincome == 7] <- "75 +"
+# # 
+# data_clean$edu[data_clean$edu == 1] <- "less than HS"
+# data_clean$edu[data_clean$edu == 2] <- "highschool"
+# data_clean$edu[data_clean$edu == 3] <- "AA/some college"
+# data_clean$edu[data_clean$edu == 4] <- "college grad"
+# data_clean$edu[data_clean$edu == 5] <- "12-17 YO"
+
+
+
+
+hist_income <- ggplot(data_clean, mapping = aes(x = income), stat = "count") +
+                   geom_bar(data = untreated_respondents, 
+                            aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = recovered_respondents, 
+                                  aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = treated_drinking_respondents, 
+                                  aes(y = ((..count..)/sum(..count..))), position = "dodge",alpha = 0.5) +
+                   scale_y_continuous(labels = percent) +
+                   labs(title = "Individual Income Distribution (18 and older)", x = "Annual income($1000's)", y = "Percent of adults 18+ in income bracket") +
+                    facet_grid(.~treated_sober)+
+                     theme_economist()+
+                    theme(axis.text.x = element_text(angle = 65, hjust = 0, vjust = 0), axis.title.x = element_text(vjust = -.25))
+hist_income
+
+hist_famincome <- ggplot(data_clean, mapping = aes(x = famincome), stat = "count") +
+                   geom_bar(data = untreated_respondents, 
+                            aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = recovered_respondents, 
+                                  aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = treated_drinking_respondents, 
+                                  aes(y = ((..count..)/sum(..count..))), position = "dodge",alpha = 0.5) +
+                   scale_y_continuous(labels = percent) +
+                   labs(title = "Family Income Distribution (18 and older)", x = "Annual income($1000's)", y = "Percent of adults 18+ in income bracket") +
+                    facet_grid(.~treated_sober)+
+                    theme_economist()+
+                    theme(axis.text.x = element_text(angle = 65, hjust = 0, vjust = 0), axis.title.x = element_text(vjust = -.25))
+
+hist_famincome
+
+
+```
+
+```{r, echo = FALSE, message = FALSE}
+
+hist_edu <- ggplot(data_clean, 
+                      mapping = aes(x = factor(edu))) +
+                     geom_bar(data = untreated_respondents, 
+                            aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = recovered_respondents, 
+                                  aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+                   geom_bar(data = treated_drinking_respondents, 
+                                  aes(y = ((..count..)/sum(..count..))), position = "dodge",alpha = 0.5)+
+                   scale_y_continuous(labels = percent) +
+  
+                   labs(title = "Education distribution (18 and older)", x = "Highest Level of Education completed", y = "Percent of population in education level") +
+                    facet_grid(.~treated_sober) +
+                   theme_economist()+
+                   theme(axis.text.x = element_text(angle = 80, hjust = .4, vjust = .45))
+                  
+
+hist_edu
+```
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+#Making Mosaic Plot
+#clean data more, print out table, print mosaic plot
+mosaic_total <- data_clean %>%#KEY POPULATION
+  select(treated_sober, edu)  #Key VARIABLES
+
+CrossTable(table(mosaic_data), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_data), shade = TRUE)
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_total_1 <- data_clean %>% #KEY POPULATION
+  select(treated_sober, income) #KEY VARIABLES
+
+CrossTable(table(mosaic_data_1), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_data_1), shade = TRUE)
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_recovered <- recovered_respondents %>% #KEY POPULATION
+  select(income, edu) #KEY VARIABLES
+
+CrossTable(table(mosaic_recovered), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_recovered), shade = TRUE)
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_treated_drinking <- treated_drinking_respondents %>%#KEY POPULATION
+  select(income, edu) #KEY VARIABLES
+
+CrossTable(table(mosaic_treated_drinking), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_treated_drinking), shade = TRUE)
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_untreated <- untreated_respondents %>%  #KEY POPULATION
+  select (income, edu)  #KEY VARIABLES
+
+CrossTable(table(mosaic_untreated), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_untreated), shade = TRUE)
+```

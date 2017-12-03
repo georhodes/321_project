@@ -111,3 +111,31 @@ p7 <- ggplot(airquality, aes(x = Ozone)) +
   scale_x_continuous(name = "Mean ozone in\nparts per billion") +
   scale_y_continuous(name = "Count")
 p7
+
+#renaming income and and famincome catagories. 
+data_clean$income[data_clean$income == 1] <- "0-9,999"
+data_clean$income[data_clean$income == 2] <- "10,000-19,999"
+data_clean$income[data_clean$income == 3] <- "20,000-29,999"
+data_clean$income[data_clean$income == 4] <- "30,000-39,999"
+data_clean$income[data_clean$income == 5] <- "40,000-49,999"
+data_clean$income[data_clean$income == 6] <- "50,000-74,999"
+data_clean$income[data_clean$income == 7] <- "75,000 +"
+
+data_clean$famincome[data_clean$income == 1] <- "0-9,999"
+data_clean$famincome[data_clean$income == 2] <- "10,000-19,999"
+data_clean$famincome[data_clean$income == 3] <- "20,000-29,999"
+data_clean$famincome[data_clean$income == 4] <- "30,000-39,999"
+data_clean$famincome[data_clean$income == 5] <- "40,000-49,999"
+data_clean$famincome[data_clean$income == 6] <- "50,000-74,999"
+data_clean$famincome[data_clean$income == 7] <- "75,000 +"
+
+# Chi-sq test
+chitest <- chisq.test(data_clean$income, data_clean$treated_sober, correct=FALSE)
+chitest
+
+chitest <- chisq.test(data_clean$treated_sober, data_clean$income, correct=FALSE)
+chitest
+
+#correlation tesst for continuous numeric data. x and y both continuous.
+corobject <- cor(data_clean$edu, data_clean$income)
+corobject
