@@ -1,0 +1,174 @@
+---
+title: "Lab 14 - Bivariate Regression & Interpretation"
+author: "Your name here"
+date: "November 28, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Complete the following exercises below and include all code used to find the answers. Knit together the PDF document and commit both the Lab 14 RMD file and the PDF document to Git. Push the changes to GitHub so both documents are visible in your public GitHub repository.
+
+**1. Select the main focal relationship you're interested in exploring for your poster project.**
+
+  a. Describe the response variable and the explanatory variable and the theoretical relationship you believe exists between these two variables. 
+  
+  I am mainly interested in how SES impacts treatment outcomes. I can measure SES by Income, Family Income, and Education. I can measure treatment outcomes in a few different ways, but so far I have been focusing on those who have been to treatmetn at some point and haven't not drank for the last year. 
+    For this I will operationalize SES as income and treatment outcomes as number of days binge drank (had 4 or more drinks if famale and 5 or more drinks if male) in the past 30 days. 
+    
+  b. Conduct a simple (bivariate) linear regression on your focal relationship and save the model object. Print out the full results by calling `summary()` on your model object. 
+  
+```{r, echo = FALSE, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(ggthemes)
+
+
+#load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+
+#change all variable names to all lowercase for ease of calling.
+names(PUF2015_102016) <- tolower(names(PUF2015_102016))
+
+#subset to relevant variables. 
+subset_nsduh2015 <- PUF2015_102016 %>%
+  select(questid2, filedate, txevrrcvd, alclottm, catag6, irsex, newrace2, irmaritstat, eduhighcat,
+         al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2) 
+#rename columns
+colnames(subset_nsduh2015) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
+                                "drink30", "binge30", "income", "famincome", "poverty", "countytype")
+
+#adds column 16 (treated_sober) with recovered, treated_drinking, and untreated 
+data_treated_sober <- subset_nsduh2015 %>%
+  mutate(treated_sober = ifelse((treatment == 1 & alcohol == 93), "recovered",
+                                 ifelse(treatment ==1 & alcohol != 93, "treated_drinking",
+                                     "untreated")))
+
+
+#adding columns that count
+# Treated and Sober "recovered"
+data_count_recovered_n <- data_treated_sober %>%
+  mutate(recovered_n = sum(treated_sober == "recovered"))
+
+#Treated and Sober "treated_drinking""
+data_count_not_recovered_n <- data_count_recovered_n %>%
+  mutate(treated_drinking_n = sum(treated_sober == "treated_drinking"))
+
+count_untreated_n <- data_count_not_recovered_n %>%
+  mutate(untreated_n= sum(treated_sober == "untreated"))
+
+data_clean <- count_untreated_n
+
+data_clean$binge30[data_clean$binge30 == 93] <- 0 # did not use in last 30
+#data_clean$binge30[data_clean$binge30 == 91] <- 0 #never used alcohol
+
+data_clean <- data_clean %>%
+  filter(binge30 == 0:30)
+
+# data_clean$income[data_clean$income == 1] <- "0-10"
+# data_clean$income[data_clean$income == 2] <- "10-20"
+# data_clean$income[data_clean$income == 3] <- "20-30"
+# data_clean$income[data_clean$income == 4] <- "30-40"
+# data_clean$income[data_clean$income == 5] <- "40-50"
+# data_clean$income[data_clean$income == 6] <- "50-75"
+# data_clean$income[data_clean$income == 7] <- "75+"
+# 
+# data_clean$edu[data_clean$edu == 1] <- "less than HS"
+# data_clean$edu[data_clean$edu == 2] <- "highschool"
+# data_clean$edu[data_clean$edu == 3] <- "AA/some college"
+# data_clean$edu[data_clean$edu == 4] <- "college grad"
+# data_clean$edu[data_clean$edu == 5] <- "12-17 YO"
+
+data_clean <- data_clean %>%
+  filter (edu != 5)
+
+#creates subet of only those "recovered"
+recovered_respondents <- data_clean %>%
+  filter(treatment == 1 & alcohol == 93)
+
+#creates subset of only those "treated drinking"
+treated_drinking_respondents <- data_clean %>%
+  filter(treated_sober == "treated_drinking")
+
+untreated_respondents <- data_clean %>%
+  filter(treated_sober == "untreated")
+
+treated_respondents <- data_clean %>%
+  filter(treatment == 1)
+
+
+                            
+project_variables <- recovered_respondents %>%
+  dplyr::select(ident, treatment, alcohol, edu, income, famincome, poverty, countytype)
+
+plot_binge_income <- ggplot(data = treated_respondents,
+                            aes(x = income, 
+                                y = binge30)) +
+                      geom_point() +
+                      geom_smooth(method = "lm", se = FALSE)
+
+plot_binge_income
+
+lm_binge_income <- lm(binge30 ~ income, data = treated_respondents)
+summary(lm_binge_income)
+```
+  
+  c. What is the direction, magnitude, and statistical significance of the bivariate association between the explanatory and response variables.   
+  The bivariate association between income and number of days binge drank in the last 30 is positive, with a coefficient of 0.3296, an intercept of 2.4820, and a p-value of 0.2968.
+  
+  d. What is the meaning of the model intercept?
+  
+  It is somewhat meaningless here, as 1 on the x-axis includes incomes from 0-10k. But ithe intercept means that of those who have been to treatment and make $0 annually, they have typically drank more than 4/5 (f/m) drinks 2.4820 times in the past 30 days. 
+  
+  e. How well does the bivariate model fit the data? How is this information calculated?
+  
+  It's hard to say. It doesn't fit very well. The main problem is that income is catagorical. This information is calculatec by measuring the distance between each point and the linear model, and then determining the error by summing all of those distances. 
+  
+  f. Is the observed association between the independent variable and dependent variable consistent with your hypothesis? Why or why not?
+  
+  I don't think this alone tells me anything. It seems consistent with the theories I've come across recently that suggest that those of higher SES use more alcohol. So far from  my models, this holds even post treatment. 
+  
+**2. Select a different focal relationship related to your project. This could be:**
+
+* **A different response and a different explanatory variable**
+
+* **A different response and the same explanatory variable**
+
+* **The same response and a different explanatory variable**
+
+  a. Describe the response variable and the explanatory variable and the theoretical relationship you believe exists between these two variables. 
+  
+  I will operationalize SES as education level and treatment outcome as number of days binge drank (4 or more drinks if female and 5 or more drinks if male) in the past 30 days. The 
+  
+  b. Conduct a simple (bivariate) linear regression on your focal relationship and save the model object. Print out the full results by calling `summary()` on your model object. 
+
+```{r, echo = FALSE, message = FALSE}
+plot_binge_edu <- ggplot(data = treated_respondents,
+                            aes(x = edu, 
+                                y = binge30)) +
+                      geom_point() +
+                      geom_smooth(method = "lm", se = FALSE)
+
+plot_binge_edu
+
+lm_binge_edu <- lm(binge30 ~ edu, data = treated_respondents)
+summary(lm_binge_edu)
+
+```
+  c. What is the direction, magnitude, and statistical significance of the bivariate association between the explanatory and response variables. 
+  
+  Again, this is correlation is barely positive with a coefficient of 0.2413 and p-value of 0.7213. 
+  
+  d. What is the meaning of the model intercept?
+  
+  The intercept doesn'f fit the model as education has been operationalized such that 1 == less than highschool diploma and over 18. There is no concept of 0. If this was operationalized as number of years of schoool completed, than those without any formal schooling would be expected to have binge drank 2.8863 days out of the last 30. 
+  
+  e. How well does the bivariate model fit the data? How is this information calculated?
+  
+  The large p-value tells me that this model does not fit the data well.
+  
+  f. Is the observed association between the independent variable and dependent variable consistent with your hypothesis? Why or why not?
+  
+  Again, this is not consistent with my hypothesis, but this simple model does not capture all the aggregate of proceses that determine behavior change.
+  
