@@ -1,6 +1,6 @@
 ---
 title: "Lab 14 - Bivariate Regression & Interpretation"
-author: "Your name here"
+author: "George Rhodes"
 date: "November 28, 2017"
 output:
   pdf_document: default
