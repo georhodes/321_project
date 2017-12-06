@@ -71,8 +71,8 @@ data_clean$famincome <- mapvalues(data_clean$famincome,
                                c("0-10", "10-20", "20-30", "30-40", "40-50","50-75", "75+"))
 
 data_clean$edu <- mapvalues(data_clean$edu,
-                            c('1','2','3','4','5'),
-                            c("< HS", "HS grad", "some college", "undergrad degree", "12-17 YO"))
+                            c('1','2','3','4'),
+                            c("< HS", "HS grad", "some college", "undergrad degree"))
 # data_clean$edu <- factor(data_clean$edu, levels = c("23-17 YO", "less than HS", "HS grad", "some college", "college grad"))
 #levels(data_clean$edu) <- 
 
@@ -127,7 +127,7 @@ untreated_respondents <- data_clean %>%
 
 
 
-hist_income <- ggplot(data_clean, mapping = aes(x = income), stat = "count") +
+hist_income <- ggplot(data_clean, mapping = aes(x = income, fill = income), stat = "count") +
                    geom_bar(data = untreated_respondents, 
                             aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
                    geom_bar(data = recovered_respondents, 
@@ -187,14 +187,14 @@ hist_edu
 mosaic_total <- data_clean %>%#KEY POPULATION
   select(treated_sober, edu)  #Key VARIABLES
 
-CrossTable(table(mosaic_data), 
+CrossTable(table(mosaic_total), 
            digits = 2,
            prop.r = TRUE,
            prop.c = TRUE,
            prop.t = FALSE,
            prop.chisq = TRUE)
 
-mosaicplot(table(mosaic_data), shade = TRUE)
+mosaicplot(table(mosaic_total), shade = TRUE)
 ```
 
 \pagebreak
@@ -205,14 +205,14 @@ mosaicplot(table(mosaic_data), shade = TRUE)
 mosaic_total_1 <- data_clean %>% #KEY POPULATION
   select(treated_sober, income) #KEY VARIABLES
 
-CrossTable(table(mosaic_data_1), 
+CrossTable(table(mosaic_total_1), 
            digits = 2,
            prop.r = TRUE,
            prop.c = TRUE,
            prop.t = FALSE,
            prop.chisq = TRUE)
 
-mosaicplot(table(mosaic_data_1), shade = TRUE)
+mosaicplot(table(mosaic_total_1), shade = TRUE)
 ```
 
 \pagebreak
