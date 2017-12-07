@@ -1,16 +1,23 @@
 ---
 title: "Data Visualization"
 author: "George Rhodes"
-date: "12/1/2017"
+date: "12/6/2017"
 output:
   pdf_document: default
   html_document: default
 ---
 
 
-TO DO:
+The following visualizations were created using data from the National Survey on Drug Use and Health from 2015 (public use data set), which I am using to explore the relationship between socioeconomic status (SES) and recovery from addiction. I hypothesized that those with higher SES would have higher rates of recovery due to fewer psychosocial stressors and better access to resources. While I have yet to show strong statistical support for this hypothesis, these exploratory visualizations do reveal interesting trends. 
 
-Play with Themes: Economist, Solarized, 538 isn't working. 
+The operationalization of these visualizations help to convey the socioeconomic landscape of the sample and those that have been treated for addiction. I created a new catagorical variable to mark those who have not been treated for addiction (no_treatment), those who have been treated and are still drinking (treated_drinking), and those who have been treated and have not drank in the last year (treated_sober). By looking at these three seperate sample subsets side by side with faceted geom_bars, we can begin to see how they vary by SES. 
+
+The three visualizations are essentially set up the same way. Only the x-axis varies between the three to look at income, family income, and level of educaiotn, in an attempt to measure of SES. The Y-axis is the percent of the sample subset--either no_treatment, treated_sober, or treated_drinking depending on the facet. So each bar shows the percent of the sample subset that has each level of SES measure. While this may seem difficult to understand intially, it is nececcary to compare the within-group profiles because the vase majority of the survey's sample has never recieved treatment. Therefore it is more helpful to compare these proportions with subsets than of the entire sample. showing these proportions graphically was another challenge. It took a while to figure out that I needed a seperate geom_bar layer for each population so that the proportion was made with the appropriate count. 
+
+I did have to manipule the data a bit.  I filted out respondants under 18 to avoid confusion with the education level and becasue they were disproportionately on the low end of income measures. I also had to change the survey responses from integars to strings so that graphs could display the labels of each catagory. Then I had to play with the angle and alignment along the x-axis for easier interpretation. From there it was mostly just aesthetic tweaking.
+
+While my data does not show the associations I was expecting, I chose these visualizations because the findings are interesting. For the most part, those who have been to treatment are of lower SES, while the group that has not been to treatment has much larger proportions in the highest brackets of eadh catagory. The could be becasue those of lower SES have higher addiction rates, or it could mean that those of higher SES are less likely to have been treated. Both explanations fit the theory. These visualizations are helful for understanding treated and untreated populations yet clearly require further exploration. 
+
 
 
 ```{r, echo = FALSE, message = FALSE}
@@ -114,7 +121,7 @@ treated_respondents <- data_clean %>%
                    geom_bar(data = treated_drinking_respondents,
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge", fill = "purple") +
                    scale_y_continuous(labels = percent) +
-                   labs(title = "Individual Income Distribution (18 and older)", x = "Annual income($1000's)", y = "Percent of adults 18+ in income bracket") +
+                   labs(title = "Individual Income Distribution by Sample Subset (18 and older)", x = "Annual Income($1000's)", y = "Percent of Adults 18+ in Income Bracket") +
                     facet_grid(.~treated_sober)+
                      theme_economist()+
                     theme(axis.text.x = element_text(angle = 65, hjust = 0, vjust = 0), axis.title.x = element_text(vjust = -.25))
@@ -128,7 +135,7 @@ hist_famincome <- ggplot(data_clean, mapping = aes(x = famincome), stat = "count
                    geom_bar(data = treated_drinking_respondents, 
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge", fill = "purple") +
                    scale_y_continuous(labels = percent) +
-                   labs(title = "Family Income Distribution (18 and older)", x = "Annual income($1000's)", y = "Percent of adults 18+ in income bracket") +
+                   labs(title = "Family Income Distribution by Sample Subset (18 and older)", x = "Annual Income($1000's)", y = "Percent of Adults 18+ in Income Bracket") +
                     facet_grid(.~treated_sober)+
                     theme_economist()+
                     theme(axis.text.x = element_text(angle = 65, hjust = 0, vjust = 0), axis.title.x = element_text(vjust = -.25))
@@ -150,7 +157,7 @@ hist_edu <- ggplot(data_clean,
                                   aes(y = ((..count..)/sum(..count..))), position = "dodge", fill = "purple")+
                    scale_y_continuous(labels = percent) +
   
-                   labs(title = "Education distribution (18 and older)", x = "Highest Level of Education completed", y = "Percent of population in education level") +
+                   labs(title = "Education Distribution by Sample Subset (18 and older)", x = "Highest Level of Education Completed", y = "Percent of Population in Education Level") +
                     facet_grid(.~treated_sober) +
                    theme_economist()+
                    theme(axis.text.x = element_text(angle = 80, hjust = .4, vjust = .45))
