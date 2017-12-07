@@ -139,3 +139,30 @@ chitest
 #correlation tesst for continuous numeric data. x and y both continuous.
 corobject <- cor(data_clean$edu, data_clean$income)
 corobject
+
+
+relabeling as factors and then ordering. 
+a$edu <- as.factor(a$edu)
+> levels(a$edu)
+[1] "12-17 YO"        "AA/some college" "college grad"    "highschool"      "less than HS"   
+> a$edu <- factor(a$edu, levels(a$edu)[c(1,5,4,3,2)])
+
+
+data_clean <- within(data_clean$edu, 
+                   Position <- factor(Position, 
+                                      levels=(data_clean$edu)[c(1,5,4,3,2)])
+hist_edu <- ggplot(a, 
+                   mapping = aes(x = edu, color = treated_sober)) +
+  geom_bar(data = untreated_respondents, 
+           aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+  geom_bar(data = recovered_respondents, 
+           aes(y = ((..count..)/sum(..count..))), position = "dodge", alpha = 0.5) +
+  geom_bar(data = treated_drinking_respondents, 
+           aes(y = ((..count..)/sum(..count..))), position = "dodge",alpha = 0.5)+
+  scale_y_continuous(labels = percent) +
+  
+  labs(title = "Education distribution", x = "Highest Level of Education completed", y = "Percent of population in education level") +
+  facet_grid(.~treated_sober) +
+  theme(axis.text.x = element_text(angle = 80, hjust = .4, vjust = .45))
+
+hist_edu
