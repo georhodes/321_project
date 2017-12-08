@@ -166,3 +166,165 @@ hist_edu <- ggplot(a,
   theme(axis.text.x = element_text(angle = 80, hjust = .4, vjust = .45))
 
 hist_edu
+
+
+
+#row bind these subsets
+# data_binded <- bind_rows(untreated_respondents, treated_drinking_respondents, recovered_respondents, .id = "treated_sober")
+
+# data_binded <- bind_rows("untreated" = untreated_respondents, "treated_drinking" = treated_drinking_respondents, "recovered" = recovered_respondents, .id = "groups")
+
+#following attempt to rename the values of data_clean$income failed to produce histogram
+#x needs to be continuous, not discrete
+# data_clean$income[data_clean$income == 1] <- "0-10"
+# data_clean$income[data_clean$income == 2] <- "10-20"
+# data_clean$income[data_clean$income == 3] <- "20-30"
+# data_clean$income[data_clean$income == 4] <- "30-40"
+# data_clean$income[data_clean$income == 5] <- "40-50"
+# data_clean$income[data_clean$income == 6] <- "50-75"
+# data_clean$income[data_clean$income == 7] <- "75+"
+# 
+# data_clean$famincome[data_clean$famincome == 1] <- "0-10"
+# data_clean$famincome[data_clean$famincome == 2] <- "10-20"
+# data_clean$famincome[data_clean$famincome == 3] <- "20-30"
+# data_clean$famincome[data_clean$famincome == 4] <- "30-40"
+# data_clean$famincome[data_clean$famincome == 5] <- "40-50"
+# data_clean$famincome[data_clean$famincome == 6] <- "50-75"
+# data_clean$famincome[data_clean$famincome == 7] <- "75 +"
+# #
+# data_clean$edu[data_clean$edu == 1] <- "less than HS"
+# data_clean$edu[data_clean$edu == 2] <- "highschool"
+# data_clean$edu[data_clean$edu == 3] <- "AA/some college"
+# data_clean$edu[data_clean$edu == 4] <- "college grad"
+# data_clean$edu[data_clean$edu == 5] <- "12-17 YO"
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+#Making Mosaic Plot
+#clean data more, print out table, print mosaic plot
+mosaic_total_edu <- data_clean %>%#KEY POPULATION
+  select(treated_sober, edu)  #Key VARIABLES
+
+CrossTable(table(mosaic_total_edu),
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_total_edu), shade = TRUE, las = 2)
+chitest1 <- chisq.test(data_clean$treated_sober, data_clean$edu, correct=FALSE)
+chitest
+
+
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_total_famincome <- data_clean %>% #KEY POPULATION
+  select(treated_sober, income) #KEY VARIABLES
+
+CrossTable(table(mosaic_total_famincome),
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_total_famincome), shade = TRUE, las = 2)
+chitest1 <- chisq.test(data_clean$treated_sober, data_clean$edu, correct=FALSE)
+chitest
+
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_recovered <- recovered_respondents %>% #KEY POPULATION
+  select(income, edu) #KEY VARIABLES
+
+CrossTable(table(mosaic_recovered), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_recovered), shade = TRUE)
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_treated_drinking <- treated_drinking_respondents %>%#KEY POPULATION
+  select(income, edu) #KEY VARIABLES
+
+CrossTable(table(mosaic_treated_drinking), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_treated_drinking), shade = TRUE)
+```
+
+\pagebreak
+
+```{r, echo = FALSE, message = FALSE}
+
+#clean data more, print out table, print mosaic plot
+mosaic_no_treatment <- untreated_respondents %>%  #KEY POPULATION
+  select (income, edu)  #KEY VARIABLES
+
+CrossTable(table(mosaic_no_treatment), 
+           digits = 2,
+           prop.r = TRUE,
+           prop.c = TRUE,
+           prop.t = FALSE,
+           prop.chisq = TRUE)
+
+mosaicplot(table(mosaic_no_treatment), shade = TRUE)
+```
+\pagebreak
+```{r, echo = FALSE, message = FALSE}
+
+plot_binge_income <- ggplot(data = treated_respondents,
+                            aes(x = income, 
+                                y = binge30)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Binge Drinking Days of Last 30 Against Individual Income", x = "Annual income($1000's)", y = "Number of days Binge Drank in past 30") +
+  theme_economist()
+#scale_x_discrete(labels = c( "1" = "0-10", "2" = "10-20", "3" = "20-30", "4" = "30-40", "5" = "40-50", "6" = "50-75", "7" = "75+"))
+plot_binge_income
+
+lm_binge_income <- lm(binge30 ~ income, data = treated_respondents)
+summary(lm_binge_income)
+lm_binge_income <- lm(binge30 ~ factor(income), data = treated_respondents)
+summary(lm_binge_income)
+
+plot_binge_famincome <- ggplot(data = treated_respondents,
+                               aes(x = famincome, 
+                                   y = binge30)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = FALSE)
+
+plot_binge_famincome
+
+lm_binge_famincome <- lm(binge30 ~ factor(famincome), data = treated_respondents)
+summary(lm_binge_famincome)
+
+lm_binge_famincome <- lm(binge30 ~ famincome, data = treated_respondents)
+summary(lm_binge_famincome)
+
+```
+
