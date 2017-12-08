@@ -90,12 +90,12 @@ data_clean$edu <- mapvalues(data_clean$edu,
 #remove ages 12-17.... NOT WORKING
 # data_clean <- count_untreated_n %>%
 #   filter(edu == 1|2|3|4)
-
-data_clean$binge30[data_clean$binge30 == 93] <- 0 # did not use in last 30
-#data_clean$binge30[data_clean$binge30 == 91] <- 0 #never used alcohol
-
-data_clean <- data_clean %>%
-  filter(binge30 == 0:30)
+# 
+# data_clean$binge30[data_clean$binge30 == 93] <- 0 # did not use in last 30
+# #data_clean$binge30[data_clean$binge30 == 91] <- 0 #never used alcohol
+# 
+# data_clean <- data_clean %>%
+#   filter(binge30 == 0:30)
 
 #creates subet of only those "recovered"
 recovered_respondents <- data_clean %>%
@@ -142,11 +142,6 @@ hist_famincome <- ggplot(data_clean, mapping = aes(x = famincome), stat = "count
 
 hist_famincome
 
-
-```
-
-```{r, echo = FALSE, message = FALSE}
-
 hist_edu <- ggplot(data_clean, 
                       mapping = aes(x = factor(edu))) +
                      geom_bar(data = untreated_respondents, 
@@ -166,5 +161,35 @@ hist_edu <- ggplot(data_clean,
 hist_edu
 
 
-```
+#Making Mosaic Plot
+#clean data more, print out table, print mosaic plot
+mosaic_edu <- data_clean %>%#KEY POPULATION
+  select(treated_sober, edu)  #Key VARIABLES
 
+mosaicplot(table(mosaic_edu), shade = TRUE, las = 4)
+
+#clean data more, print out table, print mosaic plot
+mosaic_famincome <- data_clean %>% #KEY POPULATION
+  select(treated_sober, famincome) #KEY VARIABLES
+
+mosaicplot(table(mosaic_famincome), shade = TRUE, las = 2)
+
+#clean data more, print out table, print mosaic plot
+mosaic_income <- data_clean %>% #KEY POPULATION
+  select(treated_sober, income) #KEY VARIABLES
+
+mosaicplot(table(mosaic_income), shade = TRUE, las = 2)
+
+treated_individuals <- data_clean %>%
+  select(treated_sober, edu) %>%
+  filter(treated_sober != "no_treatment")
+
+mosaicplot(table(treated_individuals), shade = TRUE, las = 2)
+
+treated_individuals <- data_clean %>%
+  select(treated_sober, famincome) %>%
+  filter(treated_sober != "no_treatment")
+
+mosaicplot(table(treated_individuals), shade = TRUE, las = 2)
+
+```
