@@ -32,7 +32,7 @@ library(ggthemes)
 
 
 #load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
-load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/321_project/NSDUH-2015-survey-data.rda")
 
 #change all variable names to all lowercase for ease of calling.
 names(PUF2015_102016) <- tolower(names(PUF2015_102016))
@@ -40,14 +40,14 @@ names(PUF2015_102016) <- tolower(names(PUF2015_102016))
 #subset to relevant variables. 
 subset_nsduh2015 <- PUF2015_102016 %>%
   select(questid2, filedate, txevrrcvd, alclottm, catag6, irsex, newrace2, irmaritstat, eduhighcat,
-         al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2) 
+         al30est, alcbng30d, irpinc3, irfamin3, poverty3, coutyp2, irki17_2, iralcage) 
 #rename columns
 colnames(subset_nsduh2015) <- c("ident", "date", "treatment", "alcohol", "age", "sex", "race", "marital", "edu", 
-                                "drink30", "binge30", "income", "famincome", "poverty", "countytype")
+                                "drink30", "binge30", "income", "famincome", "poverty", "countytype", "children", "first_use")
 
 #adds column 16 (treated_sober) with recovered, treated_drinking, and untreated 
 data_treated_sober <- subset_nsduh2015 %>%
-  mutate(treated_sober = ifelse((treatment == 1 & alcohol == 93), "recovered",
+  mutate(treated_sober = ifelse((treatment == 1 & alcohol == 93), "treated_sober",
                                  ifelse(treatment ==1 & alcohol != 93, "treated_drinking",
                                      "untreated")))
 
@@ -71,14 +71,17 @@ data_clean$binge30[data_clean$binge30 == 93] <- 0 # did not use in last 30
 
 data_clean <- data_clean %>%
   filter(binge30 == 0:30)
-# 
-# data_clean$income[data_clean$income == 1] <- "0-10"
-# data_clean$income[data_clean$income == 2] <- "10-20"
-# data_clean$income[data_clean$income == 3] <- "20-30"
-# data_clean$income[data_clean$income == 4] <- "30-40"
-# data_clean$income[data_clean$income == 5] <- "40-50"
-# data_clean$income[data_clean$income == 6] <- "50-75"
-# data_clean$income[data_clean$income == 7] <- "75+"
+
+data_clean <- data_clean %>%
+  filter(first_use != 991)
+
+data_clean$income[data_clean$income == 1] <- "0-10"
+data_clean$income[data_clean$income == 2] <- "10-20"
+data_clean$income[data_clean$income == 3] <- "20-30"
+data_clean$income[data_clean$income == 4] <- "30-40"
+data_clean$income[data_clean$income == 5] <- "40-50"
+data_clean$income[data_clean$income == 6] <- "50-75"
+data_clean$income[data_clean$income == 7] <- "75+"
 # 
 data_clean$edu[data_clean$edu == 1] <- "less than HS"
 data_clean$edu[data_clean$edu == 2] <- "highschool"
@@ -106,6 +109,14 @@ data_clean$race[data_clean$race == 4] <- "Pac Island"
 data_clean$race[data_clean$race == 5] <- "Asian"
 data_clean$race[data_clean$race == 6] <- "multiracial"
 data_clean$race[data_clean$race == 7] <- "hispanic"
+
+data_clean$children[data_clean$children == 1] <- "0"
+data_clean$children[data_clean$children == 2] <- "1"
+data_clean$children[data_clean$children == 3] <- "2"
+data_clean$children[data_clean$children == 4] <- "3+"
+
+data_clean$sex[data_clean$sex == 1] <- "male"
+data_clean$sex[data_clean$sex == 2] <- "female"
 
 data_clean <- data_clean %>%
   filter (edu != 5)
@@ -136,13 +147,26 @@ project_variables <- recovered_respondents %>%
 plot_binge_income <- ggplot(data = treated_respondents,
                             aes(x = income,
                                 y = binge30)) +
-                      geom_point() +
-                      geom_smooth(method = "lm", se = FALSE)
+                      geom_jitter() +
+                      geom_smooth(method = "lm", se = FALSE)+
+                      geom_boxplot()
+                    
 
 plot_binge_income
 
 lm_binge_income <- lm(binge30 ~ income + factor(edu), data = treated_respondents)
 summary(lm_binge_income)
+
+plot_binge_treated_sober <- ggplot(data = data_clean,
+                            aes(x = treated_sober,
+                                y = binge30, color = treated_sober)) +
+                      geom_jitter() +
+                      geom_boxplot()+
+                      theme_economist()+
+
+plot_binge_treated_sober
+lm_binge_first <- lm(binge30 ~ first_use, data = treated_respondents)
+summary(lm_binge_first)
 ```
 
 
@@ -181,7 +205,7 @@ d. Conduct a multivariate linear regression by adding one explanatory variable a
 
 ```{r, echo = FALSE, message = FALSE}
 
-lm_multi <- lm(binge30 ~ income + factor(edu) + factor(marital) + factor(race) + factor(age), data = treated_respondents)
+lm_multi <- lm(binge30 ~ factor(income) + factor(edu) + factor(marital) + factor(race) + factor(age) + factor(children) + factor(sex) + first_use, data = treated_respondents)
 lm_multi
 summary(lm_multi)
 ```
@@ -193,14 +217,17 @@ e. Describe the results of the multivariate analysis, highlighting:
 
 The focal assocation decreased slightly, but the p-value improved dramatically by dropping in half. With all of the catagorical variables, I don't know how to read this information anymore and the apparent association between each additional control variable is lost to me. But the p-value reducing is important to note. I would think that these results are important to the focal association because the model better captures the social reality. 
 
-f. How well does the full (all explanatory variables included) model fit? Are any of the other models you ran a better fit? Explain how you came to the conclusion you did. 
+f. How well does the full (all explanatory variables included) model fit (adjusted R squared bigger)? Are any of the other models you ran a better fit? Explain how you came to the conclusion you did. 
 
-This has the smallest p-value by at least half, so I would say this fits the best. 
+The adjusted R squared of the model is still small, but vastly improved from the negative adjusted R squared of the previous model. This has the smallest p-value by at least half. It's still not statistically significant, but relevent. 
 
 g. Select the model that you think best fits the data. Provide a brief synopsis of the analysis of your data using this model and describe the implications for the theoretical arguments you set out to test.
 
 ```{r}
 lm_multi <- lm(binge30 ~ income + factor(edu) + factor(marital) + factor(race) + factor(age), data = treated_respondents)
+
+lm_multi2 <- lm(binge30 ~ income + factor(edu) + factor(marital) + factor(race) + factor(age), data = treated_respondents)
+
 lm_multi
 summary(lm_multi)
 ```

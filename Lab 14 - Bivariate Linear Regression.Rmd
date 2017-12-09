@@ -26,7 +26,7 @@ library(ggthemes)
 
 
 #load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
-load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/321_project/NSDUH-2015-survey-data.rda")
 
 #change all variable names to all lowercase for ease of calling.
 names(PUF2015_102016) <- tolower(names(PUF2015_102016))
@@ -105,13 +105,25 @@ project_variables <- recovered_respondents %>%
 plot_binge_income <- ggplot(data = treated_respondents,
                             aes(x = income, 
                                 y = binge30)) +
-                      geom_point() +
+                      geom_jitter() +
                       geom_smooth(method = "lm", se = FALSE)
 
 plot_binge_income
 
 lm_binge_income <- lm(binge30 ~ income, data = treated_respondents)
 summary(lm_binge_income)
+
+plot_binge_famincome <- ggplot(data = treated_respondents,
+                            aes(x = famincome, 
+                                y = binge30)) +
+                      geom_jitter() +
+                      geom_smooth(method = "lm", se = FALSE)
+
+plot_binge_famincome
+
+lm_binge_famincome <- lm(binge30 ~ famincome, data = treated_respondents)
+summary(lm_binge_famincome)
+
 ```
   
   c. What is the direction, magnitude, and statistical significance of the bivariate association between the explanatory and response variables.   
@@ -147,13 +159,14 @@ summary(lm_binge_income)
 plot_binge_edu <- ggplot(data = treated_respondents,
                             aes(x = edu, 
                                 y = binge30)) +
-                      geom_point() +
+                      geom_jitter() +
                       geom_smooth(method = "lm", se = FALSE)
 
 plot_binge_edu
 
 lm_binge_edu <- lm(binge30 ~ edu, data = treated_respondents)
 summary(lm_binge_edu)
+
 
 ```
   c. What is the direction, magnitude, and statistical significance of the bivariate association between the explanatory and response variables. 

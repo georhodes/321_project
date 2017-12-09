@@ -32,7 +32,7 @@ library(gmodels)  #modeling crosstables and mosaics
 
 
 #load National Survey on Drug Abuse and Mental Health and create object nsduh2015.
-load("/Users/george/Documents/School/UW/SOC321/honors_thesis/honors_thesis/NSDUH-2015-survey-data.rda")
+load("/Users/george/Documents/School/UW/SOC321/honors_thesis/321_project/NSDUH-2015-survey-data.rda")
 
 #change all variable names to all lowercase for ease of calling.
 names(PUF2015_102016) <- tolower(names(PUF2015_102016))
@@ -175,21 +175,29 @@ mosaic_famincome <- data_clean %>% #KEY POPULATION
 mosaicplot(table(mosaic_famincome), shade = TRUE, las = 2)
 
 #clean data more, print out table, print mosaic plot
-mosaic_income <- data_clean %>% #KEY POPULATION
-  select(treated_sober, income) #KEY VARIABLES
+# mosaic_income <- data_clean %>% #KEY POPULATION
+#   select(treated_sober, income) #KEY VARIABLES
+# 
+# mosaicplot(table(mosaic_income), shade = TRUE, las = 2)
+# 
+# treated_individuals <- data_clean %>%
+#   select(treated_sober, edu) %>%
+#   filter(treated_sober != "no_treatment")
+# 
+# mosaicplot(table(treated_individuals), shade = TRUE, las = 2)
+# 
+# treated_individuals <- data_clean %>%
+#   select(treated_sober, famincome) %>%
+#   filter(treated_sober != "no_treatment")
+# 
+# mosaicplot(table(treated_individuals), shade = TRUE, las = 2)
 
-mosaicplot(table(mosaic_income), shade = TRUE, las = 2)
 
-treated_individuals <- data_clean %>%
-  select(treated_sober, edu) %>%
-  filter(treated_sober != "no_treatment")
+chitest2 <- chisq.test(data_clean$treated_sober, data_clean$famincom, correct=FALSE)
+chitest2
+chitest
 
-mosaicplot(table(treated_individuals), shade = TRUE, las = 2)
-
-treated_individuals <- data_clean %>%
-  select(treated_sober, famincome) %>%
-  filter(treated_sober != "no_treatment")
-
-mosaicplot(table(treated_individuals), shade = TRUE, las = 2)
+chitest <- chisq.test(data_clean$treated_sober, data_clean$edu, correct=FALSE)
+chitest
 
 ```
